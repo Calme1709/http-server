@@ -1,7 +1,7 @@
 pub struct HttpResponse {
-	pub status: u16,
-	pub status_text: String,
-	pub content: Option<String>
+	status: u16,
+	status_text: String,
+	content: Option<String>
 }
 
 impl HttpResponse {
@@ -75,5 +75,19 @@ impl HttpResponse {
 		self.content = Option::Some(content);
 
 		return self;
+	}
+
+	pub fn serialize(self) -> String {
+		let status_line = format!("HTTP/1.1 {} {}", self.status, self.status_text);
+
+		let mut headers = Vec::new();
+
+		let content = self.content.unwrap_or(String::from(""));
+
+		headers.push(format!("Content-Length: {}", content.len()));
+
+		let headers_string = headers.join("\r\n");
+
+		return format!("{status_line}\r\n{headers_string}\r\n\r\n{content}");
 	}
 }

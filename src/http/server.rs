@@ -53,7 +53,7 @@ impl HttpServer {
 			.collect();
 		
 		// Parse the request into a struct which we can use
-		let response: HttpResponse = match self.parse_request(request_text_lines) {
+		let response: HttpResponse = match HttpRequest::deserialize(request_text_lines) {
 			// Handle the request based on the based struct
 			Ok(request) => self.handle_request(request),
 			
@@ -61,31 +61,7 @@ impl HttpServer {
 			Err(_err) => HttpResponse::new().status(400)
 		};
 
-		let status_line = format!("HTTP/1.1 {} {}", response.status, response.status_text);
-
-		let mut headers = Vec::new();
-
-		let content = response.content.unwrap_or(String::from(""));
-
-		headers.push(format!("Content-Length: {}", content.len()));
-
-		let headers_string = headers.join("\r\n");
-
-		stream.write_all(format!("{status_line}\r\n{headers_string}\r\n\r\n{content}").as_bytes()).unwrap();
-	}
-
-	fn parse_request(&self, request_text_lines: Vec<String>) -> Result<HttpRequest, String> {
-		let request_line_parts = request_text_lines.get(0).unwrap().split(" ").collect::<Vec<&str>>();
-
-		let method = match HttpMethod::from_string(String::from(request_line_parts[0])) {
-			Ok(result) => result,
-			Err(e) => return Err(e)
-		};
-
-		return Ok(HttpRequest {
-			method,
-			path: String::from(request_line_parts[1]),
-		});
+		stream.write_all(response.serialize().as_bytes()).unwrap();
 	}
 
 	fn handle_request(&self, request: HttpRequest) -> HttpResponse {
