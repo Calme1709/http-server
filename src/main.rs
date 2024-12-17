@@ -8,11 +8,10 @@ fn main() {
 
 	server.get(
 		String::from("/"),
-		|_request| HttpResponse {
-			status: 200,
-			status_text: String::from("OK"),
-			content: Option::Some(String::from("Hello, World!"))
-		}
+		|_request|
+			HttpResponse::new()
+				.status(200)
+				.content(String::from("Hello, World!"))
 	);
 
 	server.listen(8080);

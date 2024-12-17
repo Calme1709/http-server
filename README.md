@@ -11,7 +11,6 @@ At the moment it is very limited with the following functionality as the immedia
  - Headers
  - More HTTP methods
  - Query parameters
- - A "builder" style for generating responses
 
 Further down the road it may be interesting to look into:
  - HTTP over TLS

@@ -58,11 +58,7 @@ impl HttpServer {
 			Ok(request) => self.handle_request(request),
 			
 			// If we are unable to parse the request return a 400 Bad Request
-			Err(_err) => HttpResponse {
-				status: 400,
-				status_text: String::from("Bad Request"),
-				content: Option::None
-			}
+			Err(_err) => HttpResponse::new().status(400)
 		};
 
 		let status_line = format!("HTTP/1.1 {} {}", response.status, response.status_text);
@@ -101,10 +97,6 @@ impl HttpServer {
 		}
 
 		// If there are no matching routes - return a 404 error
-		return HttpResponse {
-			status: 404,
-			status_text: String::from("Not Found"),
-			content: Option::None,
-		}
+		return HttpResponse::new().status(400);
 	}
 }
