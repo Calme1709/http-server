@@ -2,9 +2,17 @@ use std::collections::HashMap;
 
 use super::method::HttpMethod;
 
+struct RequestLineContent {
+	method: HttpMethod,
+	path: String,
+	version: String
+}
+
 pub enum HttpRequestParseError {
 	UnrecognisedHttpMethod,
 	MalformedHeader,
+	MalformedRequestLine,
+	UnsupportedVersion
 }
 
 pub struct HttpRequest {
@@ -15,16 +23,17 @@ pub struct HttpRequest {
 
 impl HttpRequest {
 	pub fn deserialize(request_lines: Vec<String>) -> Result<Self, HttpRequestParseError> {
-		let request_line_parts = request_lines.get(0).unwrap().split(" ").collect::<Vec<&str>>();
+		let mut lines_iter = request_lines.iter();
 
-		let method = match HttpMethod::from_string(String::from(request_line_parts[0])) {
-			Ok(result) => result,
-			Err(_e) => return Err(HttpRequestParseError::UnrecognisedHttpMethod)
-		};
+		let request_line_content = Self::deserialize_request_line(lines_iter.next().unwrap_or(&String::from("")))?;
+
+		if request_line_content.version != "HTTP/1.1" {
+			return Err(HttpRequestParseError::UnsupportedVersion);
+		}
 
 		let mut headers: HashMap<String, String> = HashMap::new();
 
-		for line in request_lines.iter().take_while(|line| !line.is_empty()).skip(1) {
+		for line in lines_iter.take_while(|line| !line.is_empty()) {
 			let header_parts: Vec<String> = line.splitn(2, ":").map(|str| str.parse::<String>().unwrap()).collect::<Vec<String>>();
 
 			let key = match header_parts.get(0) {
@@ -41,10 +50,28 @@ impl HttpRequest {
 		}
 
 		return Ok(Self {
-			method,
-			path: String::from(request_line_parts[1]),
+			method: request_line_content.method,
+			path: request_line_content.path,
 			headers
 		});
+	}
 
+	fn deserialize_request_line(request_line: &String) -> Result<RequestLineContent, HttpRequestParseError> {
+		let parts: Vec<String> = request_line.split(" ").map(|part| String::from(part)).collect();
+
+		if parts.len() != 3 {
+			return Err(HttpRequestParseError::MalformedRequestLine);
+		}
+
+		let method = match HttpMethod::from_string(parts.get(0).unwrap().to_string()) {
+			Ok(method) => method,
+			Err(_e) => return Err(HttpRequestParseError::UnrecognisedHttpMethod)
+		};
+
+		return Ok(RequestLineContent {
+			method,
+			path: parts.get(1).unwrap().to_string(),
+			version: parts.get(2).unwrap().to_string()
+		});
 	}
 }
