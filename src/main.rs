@@ -1,3 +1,4 @@
+mod line_parser;
 mod http;
 
 use crate::http::server::HttpServer;

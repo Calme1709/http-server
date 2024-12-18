@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use super::method::HttpMethod;
+use crate::line_parser::LineParser;
 
 struct RequestLineContent {
 	method: HttpMethod,
@@ -23,9 +24,9 @@ pub struct HttpRequest {
 
 impl HttpRequest {
 	pub fn deserialize(request_lines: Vec<String>) -> Result<Self, HttpRequestParseError> {
-		let mut lines_iter = request_lines.iter();
+		let mut parser = LineParser::new(request_lines);
 
-		let request_line_content = Self::deserialize_request_line(lines_iter.next().unwrap_or(&String::from("")))?;
+		let request_line_content = Self::deserialize_request_line(parser.consume().unwrap_or(String::from("")))?;
 
 		if request_line_content.version != "HTTP/1.1" {
 			return Err(HttpRequestParseError::UnsupportedVersion);
@@ -33,8 +34,14 @@ impl HttpRequest {
 
 		let mut headers: HashMap<String, String> = HashMap::new();
 
-		for line in lines_iter.take_while(|line| !line.is_empty()) {
-			let header_parts: Vec<String> = line.splitn(2, ":").map(|str| str.parse::<String>().unwrap()).collect::<Vec<String>>();
+		loop {
+			let line = parser.consume();
+
+			if line.is_none() || line.as_ref().unwrap().is_empty() {
+				break;
+			}
+
+			let header_parts: Vec<String> = line.unwrap().splitn(2, ":").map(|str| str.parse::<String>().unwrap()).collect::<Vec<String>>();
 
 			let key = match header_parts.get(0) {
 				Some(key) => String::from(key),
@@ -56,7 +63,7 @@ impl HttpRequest {
 		});
 	}
 
-	fn deserialize_request_line(request_line: &String) -> Result<RequestLineContent, HttpRequestParseError> {
+	fn deserialize_request_line(request_line: String) -> Result<RequestLineContent, HttpRequestParseError> {
 		let parts: Vec<String> = request_line.split(" ").map(|part| String::from(part)).collect();
 
 		if parts.len() != 3 {
