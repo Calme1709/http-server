@@ -73,6 +73,6 @@ impl HttpServer {
 		}
 
 		// If there are no matching routes - return a 404 error
-		return HttpResponse::new().status(400);
+		return HttpResponse::new().status(404);
 	}
 }
