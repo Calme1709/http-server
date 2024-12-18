@@ -9,6 +9,7 @@ struct RequestLineContent {
 	version: String
 }
 
+#[derive(Debug)]
 pub enum HttpRequestParseError {
 	UnrecognisedHttpMethod,
 	MalformedHeader,
@@ -20,10 +21,11 @@ pub struct HttpRequest {
 	pub method: HttpMethod,
 	pub path: String,
 	pub headers: HashMap<String, String>,
+	pub body: Option<String>
 }
 
 impl HttpRequest {
-	pub fn deserialize(request_lines: Vec<String>) -> Result<Self, HttpRequestParseError> {
+	pub fn deserialize_header(request_lines: Vec<String>) -> Result<Self, HttpRequestParseError> {
 		let mut parser = LineParser::new(request_lines);
 
 		let request_line_content = Self::deserialize_request_line(parser.consume().unwrap_or(String::from("")))?;
@@ -59,7 +61,8 @@ impl HttpRequest {
 		return Ok(Self {
 			method: request_line_content.method,
 			path: request_line_content.path,
-			headers
+			headers,
+			body: Option::None
 		});
 	}
 
@@ -80,5 +83,9 @@ impl HttpRequest {
 			path: parts.get(1).unwrap().to_string(),
 			version: parts.get(2).unwrap().to_string()
 		});
+	}
+
+	pub fn set_body(&mut self, body: String) -> () {
+		self.body = Some(body);
 	}
 }

@@ -17,5 +17,15 @@ fn main() {
 		}
 	);
 
+	server.post(
+		String::from("/"),
+		|request| {
+			HttpResponse::new()
+				.status(200)
+				.header(String::from("Content-Type"), String::from("application/json"))
+				.content(request.body.unwrap_or(String::from("No body included in request")))
+		}
+	);
+
 	server.listen(8080);
 }
