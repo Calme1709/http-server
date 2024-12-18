@@ -8,10 +8,12 @@ fn main() {
 
 	server.get(
 		String::from("/"),
-		|_request|
+		|request| {
 			HttpResponse::new()
 				.status(200)
-				.content(String::from("Hello, World!"))
+				.header(String::from("Content-Type"), String::from("text/html"))
+				.content(format!("Hello, World! From {}", request.headers.get("Host").unwrap()))
+		}
 	);
 
 	server.listen(8080);

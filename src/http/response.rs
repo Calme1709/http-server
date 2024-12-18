@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 pub struct HttpResponse {
 	status: u16,
 	status_text: String,
-	content: Option<String>
+	content: Option<String>,
+	headers: HashMap<String, String>
 }
 
 impl HttpResponse {
@@ -9,7 +12,8 @@ impl HttpResponse {
 		return HttpResponse {
 			status: 200,
 			status_text: String::from("OK"),
-			content: Option::None
+			content: Option::None,
+			headers: HashMap::new()
 		};
 	}
 
@@ -77,16 +81,26 @@ impl HttpResponse {
 		return self;
 	}
 
+	pub fn header(mut self, key: String, value: String) -> Self {
+		self.headers.insert(key, value);
+
+		return self;
+	}
+
 	pub fn serialize(self) -> String {
 		let status_line = format!("HTTP/1.1 {} {}", self.status, self.status_text);
 
-		let mut headers = Vec::new();
-
 		let content = self.content.unwrap_or(String::from(""));
 
-		headers.push(format!("Content-Length: {}", content.len()));
+		let mut headers = self.headers;
 
-		let headers_string = headers.join("\r\n");
+		headers.insert(String::from("Content-Length"), content.len().to_string());
+
+		let headers_string = headers
+			.iter()
+			.map(|(key, value)| format!("{key}: {value}"))
+			.collect::<Vec<String>>()
+			.join("\r\n");
 
 		return format!("{status_line}\r\n{headers_string}\r\n\r\n{content}");
 	}
