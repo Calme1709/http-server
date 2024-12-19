@@ -95,7 +95,7 @@ impl HttpServer {
 	fn handle_request(&self, request: HttpRequest) -> HttpResponse {
 		// Find the matching route and return the result of the callback
 		for route in &self.routes {
-			if route.method == request.method && route.path == request.path {
+			if route.method == request.method && route.path == request.uri.path {
 				return (route.callback)(request);
 			}
 		}

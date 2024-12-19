@@ -1,4 +1,4 @@
-mod line_parser;
+mod utils;
 mod http;
 
 use crate::http::server::HttpServer;
@@ -14,6 +14,16 @@ fn main() {
 				.status(200)
 				.header(String::from("Content-Type"), String::from("text/html"))
 				.content(format!("Hello, World! From {}", request.headers.get("Host").unwrap()))
+		}
+	);
+
+	server.get(
+		String::from("/params"),
+		|request| {
+			HttpResponse::new()
+				.status(200)
+				.header(String::from("Content-Type"), String::from("application/json"))
+				.content(format!("{:#?}", request.uri.query))
 		}
 	);
 

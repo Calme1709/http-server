@@ -1,11 +1,15 @@
 use std::collections::HashMap;
 
-use super::method::HttpMethod;
-use crate::line_parser::LineParser;
+use super::{
+	method::HttpMethod,
+	uri::URI
+};
+
+use crate::utils::line_parser::LineParser;
 
 struct RequestLineContent {
 	method: HttpMethod,
-	path: String,
+	uri: URI,
 	version: String
 }
 
@@ -19,7 +23,7 @@ pub enum HttpRequestParseError {
 
 pub struct HttpRequest {
 	pub method: HttpMethod,
-	pub path: String,
+	pub uri: URI,
 	pub headers: HashMap<String, String>,
 	pub body: Option<String>
 }
@@ -60,7 +64,7 @@ impl HttpRequest {
 
 		return Ok(Self {
 			method: request_line_content.method,
-			path: request_line_content.path,
+			uri: request_line_content.uri,
 			headers,
 			body: Option::None
 		});
@@ -73,6 +77,8 @@ impl HttpRequest {
 			return Err(HttpRequestParseError::MalformedRequestLine);
 		}
 
+		let uri = URI::from_string(parts.get(1).unwrap().to_string());
+
 		let method = match HttpMethod::from_string(parts.get(0).unwrap().to_string()) {
 			Ok(method) => method,
 			Err(_e) => return Err(HttpRequestParseError::UnrecognisedHttpMethod)
@@ -80,7 +86,7 @@ impl HttpRequest {
 
 		return Ok(RequestLineContent {
 			method,
-			path: parts.get(1).unwrap().to_string(),
+			uri,
 			version: parts.get(2).unwrap().to_string()
 		});
 	}

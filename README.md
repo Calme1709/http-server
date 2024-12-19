@@ -9,7 +9,6 @@ The main objectives of this project are to learn, specifically:
 ## Functionality still to implement
 At the moment it is very limited with the following functionality as the immediate items on the TODO list:
  - More HTTP methods
- - Query parameters
  - File upload
  - Multipart form data
 
