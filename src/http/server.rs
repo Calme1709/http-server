@@ -30,18 +30,18 @@ impl HttpServer {
 		};
 	}
 
-	pub fn get(&mut self, path: String, callback: HttpRouteCallback) -> () {
+	pub fn get(&mut self, path_pattern: String, callback: HttpRouteCallback) -> () {
 		self.routes.push(HttpRoute {
 			method: HttpMethod::GET,
-			path,
+			path_pattern,
 			callback
 		});
 	}
 
-	pub fn post(&mut self, path: String, callback: HttpRouteCallback) -> () {
+	pub fn post(&mut self, path_pattern: String, callback: HttpRouteCallback) -> () {
 		self.routes.push(HttpRoute {
 			method: HttpMethod::POST,
-			path,
+			path_pattern,
 			callback
 		});
 	}
@@ -95,7 +95,7 @@ impl HttpServer {
 	fn handle_request(&self, request: HttpRequest) -> HttpResponse {
 		// Find the matching route and return the result of the callback
 		for route in &self.routes {
-			if route.method == request.method && route.path == request.uri.path {
+			if route.matches(&request) {
 				return (route.callback)(request);
 			}
 		}

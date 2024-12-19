@@ -37,5 +37,15 @@ fn main() {
 		}
 	);
 
+	server.get(
+		String::from("/documents/*.txt"),
+		|request| {
+			HttpResponse::new()
+				.status(200)
+				.header(String::from("Content-Type"), String::from("text/plain"))
+				.content(format!("{}", request.uri.path))
+		}
+	);
+
 	server.listen(8080);
 }
