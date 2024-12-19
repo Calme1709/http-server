@@ -18,15 +18,12 @@ impl URLEncoding {
         while state != DecodeState::Finished {
             match state {
                 DecodeState::Initial => {
-                    let unescaped_text = scanner.consume_until_char('%');
+                    output.push_str(&scanner.consume_until_char('%'));
 
-                    output.push_str(&unescaped_text);
-
-                    if scanner.finished() {
-                        state = DecodeState::Finished;
-                    } else {
-                        state = DecodeState::InEscape;
-                    }
+                    state = match scanner.finished() {
+                        true => DecodeState::Finished,
+                        false => DecodeState::InEscape
+                    };
                 },
                 DecodeState::InEscape => {
                     let escape_sequence = scanner.consume_exact(3);
@@ -46,12 +43,9 @@ impl URLEncoding {
                         false => escape_sequence
                     };
 
-                    state = match scanner.finished() {
-                        true => DecodeState::Finished,
-                        false => DecodeState::Initial
-                    };
-
                     output.push_str(&decoded_sequence);
+
+                    state = DecodeState::Initial;
                 },
                 _ => panic!("Invalid URLEncoding decode state")
             }
