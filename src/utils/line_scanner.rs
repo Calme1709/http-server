@@ -1,9 +1,9 @@
-pub struct LineParser {
+pub struct LineScanner {
     index: usize,
     lines: Vec<String>
 }
 
-impl LineParser {
+impl LineScanner {
     pub fn new(lines: Vec<String>) -> Self {
         return Self {
             index: 0,
@@ -17,9 +17,5 @@ impl LineParser {
         self.index += 1;
 
         return result.cloned();
-    }
-
-    pub fn get(&self) -> Option<String> {
-        return self.lines.get(self.index).cloned();
     }
 }

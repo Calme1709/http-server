@@ -5,7 +5,7 @@ use super::{
 	uri::URI
 };
 
-use crate::utils::line_parser::LineParser;
+use crate::utils::line_scanner::LineScanner;
 
 struct RequestLineContent {
 	method: HttpMethod,
@@ -30,9 +30,9 @@ pub struct HttpRequest {
 
 impl HttpRequest {
 	pub fn deserialize_header(request_lines: Vec<String>) -> Result<Self, HttpRequestParseError> {
-		let mut parser = LineParser::new(request_lines);
+		let mut scanner = LineScanner::new(request_lines);
 
-		let request_line_content = Self::deserialize_request_line(parser.consume().unwrap_or(String::from("")))?;
+		let request_line_content = Self::deserialize_request_line(scanner.consume().unwrap_or(String::from("")))?;
 
 		if request_line_content.version != "HTTP/1.1" {
 			return Err(HttpRequestParseError::UnsupportedVersion);
@@ -41,7 +41,7 @@ impl HttpRequest {
 		let mut headers: HashMap<String, String> = HashMap::new();
 
 		loop {
-			let line = parser.consume();
+			let line = scanner.consume();
 
 			if line.is_none() || line.as_ref().unwrap().is_empty() {
 				break;
