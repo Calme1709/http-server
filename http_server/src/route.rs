@@ -5,9 +5,9 @@ use std::fmt::{
 };
 
 use super::{
-	request::HttpRequest,
-	response::HttpResponse,
-	method::HttpMethod
+	HttpRequest,
+	HttpResponse,
+	HttpMethod
 };
 
 pub type HttpRouteCallback = fn(HttpRequest) -> HttpResponse;

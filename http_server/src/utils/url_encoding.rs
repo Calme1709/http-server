@@ -1,4 +1,4 @@
-use crate::utils::string_scanner::StringScanner;
+use super::StringScanner;
 
 #[derive(PartialEq, Eq)]
 enum DecodeState {

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use crate::utils::string_scanner::StringScanner;
-use crate::utils::url_encoding::URLEncoding;
+use crate::utils::StringScanner;
+use crate::utils::URLEncoding;
 
 pub struct URI {
     pub path: String,

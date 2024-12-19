@@ -1,8 +1,4 @@
-mod utils;
-mod http;
-
-use crate::http::server::HttpServer;
-use crate::http::response::HttpResponse;
+use http_server::{HttpServer, HttpResponse};
 
 fn main() {
 	let mut server = HttpServer::new();

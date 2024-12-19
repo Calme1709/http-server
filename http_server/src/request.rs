@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 use super::{
-	method::HttpMethod,
+	HttpMethod,
 	uri::URI
 };
 
-use crate::utils::line_scanner::LineScanner;
+use crate::utils::LineScanner;
 
 struct RequestLineContent {
 	method: HttpMethod,

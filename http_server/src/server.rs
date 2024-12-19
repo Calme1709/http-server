@@ -12,11 +12,11 @@ use std::{
 };
 
 use super::{
-	method::HttpMethod,
-	request::HttpRequest,
-	response::HttpResponse,
-	route::HttpRoute,
-	route::HttpRouteCallback,
+	HttpMethod,
+	HttpRequest,
+	HttpResponse,
+	HttpRoute,
+	HttpRouteCallback,
 };
 
 pub struct HttpServer {
