@@ -11,11 +11,11 @@
 			"cargo": {
 				"args": [
 					"build",
-					"--bin=http-server",
-					"--package=http-server"
+					"--bin=example_app",
+					"--package=example_app"
 				],
 				"filter": {
-					"name": "http-server",
+					"name": "example_app",
 					"kind": "bin"
 				}
 			},
