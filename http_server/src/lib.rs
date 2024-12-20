@@ -5,6 +5,7 @@ mod route;
 mod server;
 mod uri;
 mod utils;
+mod mime_type;
 
 pub use method::HttpMethod;
 pub use request::HttpRequest;

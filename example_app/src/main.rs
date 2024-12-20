@@ -43,5 +43,7 @@ fn main() {
 		}
 	);
 
+	server.serve_static(String::from("/workspaces/http-server/example_app/public/"));
+
 	server.listen(8080);
 }
