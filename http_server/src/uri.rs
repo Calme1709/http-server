@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use crate::utils::StringScanner;
-use crate::utils::URLEncoding;
+use crate::utils::{URLEncoding, VecScanner};
 
 pub struct URI {
     pub path: String,
@@ -23,7 +22,7 @@ enum URIParsingState {
 
 impl URI {
     pub fn from_string(string: String) -> Self {
-        let mut scanner = StringScanner::new(&string);
+        let mut scanner = VecScanner::new(string.chars().collect::<Vec<char>>());
 
         let mut state = URIParsingState::Path;
 
@@ -34,11 +33,11 @@ impl URI {
         while state != URIParsingState::Finished {
             match state {
                 URIParsingState::Path => {
-                    path = scanner.consume_until(|char| char == '?' || char == '#');
+                    path = scanner.consume_until(|char, _index| char == '?' || char == '#').into_iter().collect::<String>();
 
                     state = match scanner.finished() {
                         true => URIParsingState::Finished,
-                        false => match scanner.consume_exact(1).chars().nth(0).unwrap() {
+                        false => match scanner.consume_exact(1).get(0).unwrap() {
                             '?' => URIParsingState::Query,
                             '#' => URIParsingState::Fragment,
 
@@ -47,7 +46,7 @@ impl URI {
                     }
                 },
                 URIParsingState::Query => {
-                    let query_string = scanner.consume_until(|char| char == '#');
+                    let query_string = scanner.consume_until_value('#').into_iter().collect::<String>();
 
                     // NOTE: Query string format is not standardized - this implementation is in line with the
                     // algorithm recommended for decoding application/x-www-form-urlencoded payloads:
@@ -64,7 +63,7 @@ impl URI {
 
                     // 4. For each string string in strings, run these substeps:
                     for string in strings {
-                        let mut string_scanner = StringScanner::new(&string);
+                        let mut string_scanner = VecScanner::new(string.chars().collect::<Vec<char>>());
 
                         // 1. If string contains a "=" (U+003D) character, then let name be the substring of string
                         //    from the start of string up to but excluding its first "=" (U+003D) character, and let
@@ -76,9 +75,9 @@ impl URI {
                         //    Otherwise, string contains no "=" (U+003D) characters. Let name have the value of string
                         //    and let value be the empty string.
                         
-                        let name = string_scanner.consume_until_char('=');
+                        let name = string_scanner.consume_until_value('=').into_iter().collect::<String>();
                         string_scanner.consume_exact(1);
-                        let value = string_scanner.consume_rest();
+                        let value = string_scanner.consume_rest().into_iter().collect::<String>();
 
                         // 2. Replace any "+" (U+002B) characters in name and value with U+0020 SPACE characters.
                         // 3. Replace any escape in name and value with the character represented by the escape. This
@@ -104,7 +103,7 @@ impl URI {
                     }
                 },
                 URIParsingState::Fragment => {
-                    fragment = scanner.consume_rest();
+                    fragment = scanner.consume_rest().into_iter().collect::<String>();
 
                     state = URIParsingState::Finished;
                 },

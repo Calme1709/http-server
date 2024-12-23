@@ -1,4 +1,4 @@
-use super::StringScanner;
+use super::VecScanner;
 
 #[derive(PartialEq, Eq)]
 enum DecodeState {
@@ -11,14 +11,14 @@ pub struct URLEncoding {}
 
 impl URLEncoding {
     pub fn decode(original_string: String) -> String {
-        let mut scanner = StringScanner::new(&original_string.replace("+", " "));
+        let mut scanner = VecScanner::new(original_string.replace("+", " ").chars().collect::<Vec<char>>());
         let mut output = String::new();
         let mut state = DecodeState::Initial;
 
         while state != DecodeState::Finished {
             match state {
                 DecodeState::Initial => {
-                    output.push_str(&scanner.consume_until_char('%'));
+                    output.push_str(scanner.consume_until_value('%').into_iter().collect::<String>().as_str());
 
                     state = match scanner.finished() {
                         true => DecodeState::Finished,
@@ -26,7 +26,7 @@ impl URLEncoding {
                     };
                 },
                 DecodeState::InEscape => {
-                    let escape_sequence = scanner.consume_exact(3);
+                    let escape_sequence = scanner.consume_exact(3).into_iter().collect::<String>();
 
                     let decoded_sequence = match escape_sequence.len() == 3 && escape_sequence.chars().nth(1).unwrap().is_ascii_hexdigit() && escape_sequence.chars().nth(2).unwrap().is_ascii_hexdigit() {
                         true => match u32::from_str_radix(&escape_sequence[1..], 16) {
