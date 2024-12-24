@@ -102,6 +102,18 @@ impl UploadedData {
 
 impl std::fmt::Debug for UploadedData {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		return write!(f, "{}", self.as_text().unwrap());
+		let hex_data: String = self.underlying.iter()
+			.take(16)
+			.map(|byte| format!("{:02x}", byte))
+			.collect::<Vec<String>>()
+			.join(" ");
+	
+		let truncated = if self.underlying.len() > 16 {
+			format!("{}...", hex_data)
+		} else {
+			hex_data
+		};
+
+		write!(f, "UploadedData {{ content_type: {:?}, content_disposition: {:?}, underlying: {} }}", self.content_type, self.content_disposition, truncated)
 	}
 }
