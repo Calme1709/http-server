@@ -23,15 +23,6 @@ fn main() {
 		}
 	);
 
-	server.post(
-		String::from("/"),
-		|request| {
-			HttpResponse::new()
-				.status(200)
-				.header(String::from("Content-Type"), String::from("application/json"))
-				.content(request.body.unwrap_or(String::from("No body included in request")))
-		}
-	);
 
 	server.get(
 		String::from("/documents/*.txt"),
@@ -44,6 +35,16 @@ fn main() {
 	);
 
 	server.serve_static(String::from("/workspaces/http-server/example_app/public/"));
+
+	server.post(String::from("/upload"), |request| {
+		println!("{:#?}", request.headers);
+		println!("{:#?}", request.body.unwrap().as_multipart_form_data().unwrap());
+
+		HttpResponse::new()
+			.status(200)
+			.header(String::from("Content-Type"), String::from("text/plain"))
+			.content(String::from("File uploaded successfully"))
+	});
 
 	server.listen(8080);
 }

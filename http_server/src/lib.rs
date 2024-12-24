@@ -1,10 +1,9 @@
-mod method;
 mod request;
 mod response;
 mod route;
 mod server;
-mod uri;
 mod utils;
+mod method;
 mod mime_type;
 
 pub use method::HttpMethod;

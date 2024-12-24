@@ -1,15 +1,5 @@
 use std::cell::Cell;
 
-trait Len {
-    fn len(&self) -> usize;
-}
-
-impl<T> Len for Vec<T> {
-    fn len(&self) -> usize {
-        return self.len();
-    }
-}
-
 pub struct VecScanner<T> {
     index: Cell<usize>,
     input: Vec<T>,
@@ -56,11 +46,17 @@ impl<T> VecScanner<T> where T: Eq + ?Sized + Copy,
     }
 
     pub fn consume_until_pattern(&mut self, pattern: Vec<T>) -> Vec<T> {
-        return self.consume_until(|_value, _index| self.peek(pattern.len()) == pattern);
+        return self.consume_until(|_value, index| self.slice(index, pattern.len()) == pattern);
     }
 
     pub fn consume_rest(&mut self) -> Vec<T> {
         return self.consume_until(|_value, _index| false);
+    }
+
+    pub fn slice(&self, start: usize, len: usize) -> Vec<T> {
+        let end = std::cmp::min(start + len, self.input.len());
+
+        return self.input[start..end].to_vec();
     }
 
     pub fn peek(&self, n: usize) -> Vec<T> {
